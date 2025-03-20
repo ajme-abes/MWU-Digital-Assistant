@@ -21,3 +21,14 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# Ignore virtual environment, Node modules, and environment files
+backend/venv/
+frontend/node_modules/
+*.env
+*.sqlite3
+*.pyc
+
+# Environment files
+.env
+backend/.env
+frontend/.env
