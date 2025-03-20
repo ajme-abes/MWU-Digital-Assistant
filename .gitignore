@@ -1,1 +1,5 @@
 .qodo
+# Environment files
+.env
+backend/.env
+frontend/.env
