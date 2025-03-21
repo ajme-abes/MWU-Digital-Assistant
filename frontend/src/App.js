@@ -13,7 +13,8 @@ import {
 } from '@mui/material';
 
 // Components
-import Login from './components/Login';
+//import Login from './components/Login';
+import SignInSide from './SignInSide';
 import Signup from './components/Signup';
 import TeacherDashboard from './components/TeacherDashboard';
 import StudentDashboard from './components/StudentDashboard';
@@ -101,7 +102,7 @@ function App() {
             }
           />
 
-          <Route path="/login" element={!user ? <Login setUser={setUser} /> : <Navigate to="/" />} />
+          <Route path="/login" element={!user ? <SignInSide setUser={setUser} /> : <Navigate to="/" />} />
           <Route path="/signup" element={!user ? <Signup setUser={setUser} /> : <Navigate to="/" />} />
 
           {/* Protected Routes */}

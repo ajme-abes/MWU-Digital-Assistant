@@ -20,6 +20,8 @@ import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import AnimatedText from './AnimatedText';
+
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -174,7 +176,9 @@ export default function SignUp(props) {
       <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
       <SignUpContainer direction="column" justifyContent="space-between">
         <Card variant="outlined">
-          <SitemarkIcon />
+          {/*<SitemarkIcon />*/}
+          <AnimatedText />
+
           <Typography
             component="h1"
             variant="h4"
@@ -249,6 +253,7 @@ export default function SignUp(props) {
             <Typography sx={{ color: 'text.secondary' }}>or</Typography>
           </Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/*
           <GoogleLogin
               onSuccess={credentialResponse => handleSocialLogin('google', credentialResponse.credential)}
               onError={() => console.log('Google login failed')}
@@ -270,7 +275,7 @@ export default function SignUp(props) {
                   Sign up with Facebook
                 </Button>
               )}
-            />
+            />*/}
 
             <Typography sx={{ textAlign: 'center' }}>
               Already have an account?{' '}
