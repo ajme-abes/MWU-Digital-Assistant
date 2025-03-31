@@ -17,10 +17,11 @@ import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
 import { styled } from '@mui/material/styles';
 import ForgotPassword from './ForgotPassword';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { GoogleIcon } from './CustomIcons';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
+import AnimatedText from './AnimatedText';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -152,14 +153,14 @@ export default function Login(props) {
       <CssBaseline enableColorScheme />
       <SignInContainer direction="column" justifyContent="space-between">
         <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
-    <Card variant="outlined"  >
+    <Card variant="outlined" sx={{ mt: -6 }}   >
       <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-        <SitemarkIcon />
+       <AnimatedText/>
       </Box>
       <Typography
         component="h1"
         variant="h4"
-        sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
+        sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', mt: -2 }}
       >
         Sign in
       </Typography>
@@ -167,7 +168,7 @@ export default function Login(props) {
         component="form"
         onSubmit={handleSubmit}
         noValidate
-        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2 }}
+        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2,  }}
       >
         <FormControl>
           <FormLabel htmlFor="username">Username</FormLabel>
@@ -243,14 +244,14 @@ export default function Login(props) {
         >
           Sign in with Google
         </Button>
-        <Button
+        {/* <Button
           fullWidth
           variant="outlined"
           onClick={() => alert('Sign in with Facebook')}
           startIcon={<FacebookIcon />}
         >
           Sign in with Facebook
-        </Button>
+        </Button> */}
       </Box>
     </Card>
     </SignInContainer>

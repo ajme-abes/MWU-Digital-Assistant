@@ -18,7 +18,7 @@ export default function TeacherDashboard() {
 
   return (
     <div>
-      <h2>Your Courses</h2>
+      <h2>techaer dashboard</h2>
       {courses.map(course => (
         <div key={course.id}>
           <h3>{course.title}</h3>

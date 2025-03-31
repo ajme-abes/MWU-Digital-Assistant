@@ -7,7 +7,7 @@ const AnimatedText = () => {
     <motion.div
       style={{
         display: 'flex',
-        justifyContent: 'center',
+        //justifyContent: 'center',
         alignItems: 'center',
         height: '100px',
       }}
@@ -16,7 +16,7 @@ const AnimatedText = () => {
       transition={{ duration: 1 }}
     >
       <Typography
-        variant="h4"
+        variant="h5"
         sx={{
           background: 'linear-gradient(to right, #FF5733, #33FF57, #3357FF)',
           backgroundClip: 'text',
@@ -25,7 +25,7 @@ const AnimatedText = () => {
           fontFamily: 'Arial, sans-serif',
         }}
       >
-        MWU Digital Assistant
+        Well Come to MWU Digital Assistant
       </Typography>
     </motion.div>
   );

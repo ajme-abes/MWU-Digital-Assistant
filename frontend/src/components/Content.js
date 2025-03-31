@@ -2,49 +2,58 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded';
-import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
-import SettingsSuggestRoundedIcon from '@mui/icons-material/SettingsSuggestRounded';
-import ThumbUpAltRoundedIcon from '@mui/icons-material/ThumbUpAltRounded';
+import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
+import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded';
+import RocketLaunchRoundedIcon from '@mui/icons-material/RocketLaunchRounded';
+import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
+import VpnKeyRoundedIcon  from '@mui/icons-material/VpnKeyRounded';
 import { SitemarkIcon } from './CustomIcons';
+import AnimatedText from './AnimatedText';
 
 const items = [
   {
-    icon: <SettingsSuggestRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Adaptable performance',
+    icon: <RocketLaunchRoundedIcon sx={{ color: 'blue' }} />,
+    title: 'Unlock Efficiency',
     description:
-      'Our product effortlessly adjusts to your needs, boosting efficiency and simplifying your tasks.',
+      'Get instant access to essential university information.',
   },
   {
-    icon: <ConstructionRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Built to last',
+    icon: <MenuBookRoundedIcon sx={{ color: 'blue' }} />,
+    title: ' Seamless Learning Experience',
     description:
-      'Experience unmatched durability that goes above and beyond with lasting investment.',
+      'Browse study materials and resources with ease.',
   },
   {
-    icon: <ThumbUpAltRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Great user experience',
+    icon: <SmartToyRoundedIcon sx={{ color: 'brown' }} />,
+    title: 'AI-Powered Assistance',
     description:
-      'Integrate our product into your routine with an intuitive and easy-to-use interface.',
+      'Have your questions answered anytime, anywhere.',
   },
   {
-    icon: <AutoFixHighRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Innovative functionality',
+    icon: <EditNoteRoundedIcon sx={{ color: 'blue' }} />,
+    title: ' Hassle-Free Exams and Assignments',
     description:
-      'Stay ahead with features that set new standards, addressing your evolving needs better than the rest.',
+      'Take online tests and track your progress effortlessly.',
+  },
+  {
+    icon: <VpnKeyRoundedIcon sx={{ color: 'blue' }} />,
+    title: ' Hassle-Free Exams and Assignments',
+    description:
+      'Take online tests and track your progress effortlessly.',
   },
 ];
 
 export default function Content() {
   return (
     <Stack
-      sx={{ flexDirection: 'column', alignSelf: 'center', gap: 4, maxWidth: 450 }}
+      sx={{ flexDirection: 'column', alignSelf: 'center', gap: 4, maxWidth: 450, mt: -25  }}
     >
-      <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-        <SitemarkIcon />
+      <Box sx={{ display: { xs: 'none', md: 'flex' } }} >
+       {/*<SitemarkIcon />*/}
+       <AnimatedText />
       </Box>
       {items.map((item, index) => (
-        <Stack key={index} direction="row" sx={{ gap: 2 }}>
+        <Stack key={index} direction="row" sx={{ gap: 1 }}>
           {item.icon}
           <div>
             <Typography gutterBottom sx={{ fontWeight: 'medium' }}>
