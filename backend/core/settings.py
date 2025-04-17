@@ -21,10 +21,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-o=1ji-fs59)(wp273!1y3t5ls*pp%9v_v@&@&y_qo(o&@*&pm#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -32,16 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # For production use
-# For testing:
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.your-email-provider.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your@email.com'
-EMAIL_HOST_PASSWORD = 'your-email-password'
-# Application definition
+# Custom User Model
+AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -50,38 +38,34 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    #Third-party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    'corsheaders',
-    'users',
-    'courses',
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
     'dj_rest_auth',
     'dj_rest_auth.registration',
-    #'django_ckeditor_5',
-    'ckeditor',
-    'import_export',
-    'requests',
-    'cryptography',
-    'drf_yasg',
+    'corsheaders',
+    'django.contrib.sites',  
     'django_rest_passwordreset',
+
+
+
+    #custom apps
+    'university',
+    'users',
+    #'courses',
+    'invitations',
+    'courses.apps.CoursesConfig',
+    
+    'django_ckeditor_5',
+    
 
 ]
 
-REST_PASSWORDRESET = {
-    'EMAIL_TEMPLATE_NAME': 'password_reset_email.html',
-    'PASSWORD_RESET_TIMEOUT': 14400  # 4 hours
-}
 
-REST_AUTH = {
-    'USE_JWT': True,
-    'JWT_AUTH_HTTPONLY': False,
-    'TOKEN_MODEL': None,  # Add this line to disable token auth
-}
 from datetime import timedelta
 
 SIMPLE_JWT = {
@@ -91,64 +75,64 @@ SIMPLE_JWT = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'users.backends.EmailAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-        'APP': {
-            'client_id': 'YOUR_GOOGLE_CLIENT_ID',
-            'secret': 'YOUR_GOOGLE_SECRET',
-            'key': ''
-        }
-    },
-    'facebook': {
-        'SCOPE': ['email', 'public_profile'],
-        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-        'METHOD': 'oauth2',
-        'APP': {
-            'client_id': 'YOUR_FACEBOOK_APP_ID',
-            'secret': 'YOUR_FACEBOOK_SECRET',
-            'key': ''
-        }
-    }
-}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
+CORS_ALLOW_CREDENTIALS = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-# Add these settings for proper social authentication
-ACCOUNT_EMAIL_REQUIRED = True
+SITE_ID = 1
+
+# Authentication Settings
+SOCIALACCOUNT_ENABLED = False  # Disable social accounts completely
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_LOGIN_METHODS = {"email", "username"}
-SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
-SOCIALACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+REST_AUTH = {
+    'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
+    'USE_JWT': False,
+    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+}
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'upload_url': '/ckeditor5/upload/',
+        # ... other configurations ...
+    },
+}
+
+
 
 # CORS settings (allow React frontend)
-CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    ]
 
 # JWT Authentication
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+
     ),
 }
 
-# Custom User Model
-AUTH_USER_MODEL = 'users.User'
+
 
 # File Uploads (for PDFs/resources)
 MEDIA_URL = '/media/'
@@ -189,7 +173,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'university_db',
+        'NAME': 'university_hub',
         'USER': 'admin',
         'PASSWORD': '934608@maamiT',
         'HOST': 'localhost',  # or your database host
