@@ -55,3 +55,13 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
     def get_current_hod(self, obj):
         return obj.hod.email if obj.hod else None
+    
+    def create(self, validated_data):
+        college_code = validated_data.pop('college_code')
+        try:
+            college = College.objects.get(pk=college_code)
+        except College.DoesNotExist:
+            raise serializers.ValidationError({"college_code": "College not found."})
+        
+        validated_data['college'] = college
+        return super().create(validated_data)

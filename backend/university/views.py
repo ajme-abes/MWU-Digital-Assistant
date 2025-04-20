@@ -1,12 +1,16 @@
 from rest_framework import generics, permissions, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.utils import timezone
 from datetime import timedelta
 import uuid
 from django.contrib.auth import get_user_model
+from rest_framework import generics
+from .models import College, Department
+from .serializers import CollegeSerializer, DepartmentSerializer
 User = get_user_model()
+
 
 from invitations.models import Invitation
 from .serializers import InvitationSerializer
@@ -38,3 +42,23 @@ class StudentManagementAPI(generics.DestroyAPIView):
         if instance.department != self.request.user.department:
             raise PermissionDenied("Cannot delete students from other departments")
         instance.delete()
+
+class CollegeListCreateAPI(generics.ListCreateAPIView):
+    queryset = College.objects.all()
+    serializer_class = CollegeSerializer
+    permission_classes = [IsAdminUser]
+
+class CollegeDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    queryset = College.objects.all()
+    serializer_class = CollegeSerializer
+    permission_classes = [IsAdminUser]
+
+class DepartmentListCreateAPI(generics.ListCreateAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permission_classes = [IsAdminUser]
+
+class DepartmentDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permission_classes = [IsAdminUser]

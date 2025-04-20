@@ -89,41 +89,38 @@ from .models import User
 from core.permissions import RoleChoices
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('email', 'role', 'college_display', 'department_display', 'is_active')
-    list_filter = ('role', 'college', 'department', 'is_active', 'is_staff')
-    raw_id_fields = ('department', 'college')
-    ordering = ('-date_joined',)
-    search_fields = ('email', 'college__name', 'department__name')
-    readonly_fields = ('last_login', 'date_joined')
-    actions = ['activate_users', 'deactivate_users']
-
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Role Information', {'fields': ('role',)}),
-        ('Institutional Info', {'fields': ('college', 'department')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
-        ('Timestamps', {'fields': ('last_login', 'date_joined')}),
+        ('Personal info', {'fields': ('first_name', 'last_name')}),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+        }),
+        ('University Info', {'fields': ('role', 'department')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-
+    
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'role', 'college', 'department'),
+            'fields': ('email', 'password1', 'password2', 'role', 'department'),
         }),
     )
 
-    def college_display(self, obj):
-        return obj.college.code if obj.college else '-'
-    college_display.short_description = 'College'
+    list_display = ('email', 'first_name', 'last_name', 'role', 'department_display', 'is_staff', 'is_active')
+    list_filter = ('role', 'department', 'is_staff', 'is_superuser', 'is_active')
+    search_fields = ('email', 'first_name', 'last_name', 'department__name')
+    ordering = ('email',)
+    raw_id_fields = ('department',)
+    actions = ['activate_users', 'deactivate_users']
 
     def department_display(self, obj):
-        return f"{obj.department.code}" if obj.department else '-'
+        return f"{obj.department.code} - {obj.department.name}" if obj.department else '-'
     department_display.short_description = 'Department'
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request).select_related('college', 'department')
-        if not request.user.is_superuser:
-            return qs.filter(college=request.user.college)
+        qs = super().get_queryset(request).select_related('department')
+        if not request.user.is_superuser and request.user.department:
+            return qs.filter(department__college=request.user.department.college)
         return qs
 
     @admin.action(description='Activate selected users')
@@ -133,5 +130,4 @@ class CustomUserAdmin(UserAdmin):
     @admin.action(description='Deactivate selected users')
     def deactivate_users(self, request, queryset):
         queryset.update(is_active=False)
-
 admin.site.register(User, CustomUserAdmin)

@@ -1,25 +1,11 @@
-# from rest_framework import permissions
 
-# class IsCollegeAdmin(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         return request.user.roles.filter(
-#             name='ADMIN', 
-#             college=request.user.college
-#         ).exists()
-
-# class IsDepartmentHOD(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         return request.user.roles.filter(
-#             name='HOD',
-#             department=request.user.department
-#         ).exists() and request.user.department.hod == request.user
-
-# class ManagesDepartment(permissions.BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         return obj.department == request.user.department
-# users/permissions.py
 from rest_framework import permissions
-from core.permissions import IsAdmin, IsHOD, SameCollege
+from core.permissions import (
+    IsAdmin,
+    IsHOD,
+    CollegeLevelPermission as SameCollege,
+    DepartmentLevelPermission as ManagesDepartment
+)
 
 class ManagesCollege(IsAdmin, SameCollege):
     def has_permission(self, request, view):

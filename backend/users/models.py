@@ -108,16 +108,10 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('role', RoleChoices.ADMIN)
-        
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-            
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
-    username = None  # Remove username field
+    username = None
     email = models.EmailField(unique=True)
     role = models.CharField(
         max_length=10,
@@ -130,17 +124,28 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
-    college = models.ForeignKey(
-        'university.College',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = UserManager()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['department'],
+                condition=models.Q(role=RoleChoices.HOD),
+                name='unique_hod_per_department'
+            ),
+            models.UniqueConstraint(
+                fields=['email'],
+                name='unique_email'
+            )
+        ]
 
     def __str__(self):
         return self.email
+
+    @property
+    def college(self):
+        """Derived property through department relationship"""
+        return self.department.college if self.department else None

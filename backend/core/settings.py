@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+ADMIN_SITE_HEADER = "MWU Digital Hub Administration"
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -54,8 +54,8 @@ INSTALLED_APPS = [
 
 
     #custom apps
-    'university',
     'users',
+    'university',
     #'courses',
     'invitations',
     'courses.apps.CoursesConfig',
@@ -173,7 +173,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'university_hub',
+        'NAME': 'uni_store',
         'USER': 'admin',
         'PASSWORD': '934608@maamiT',
         'HOST': 'localhost',  # or your database host

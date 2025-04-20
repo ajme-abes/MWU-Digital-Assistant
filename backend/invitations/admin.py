@@ -1,17 +1,35 @@
 from django.contrib import admin
-from django.utils import timezone
 from .models import Invitation
+from django import forms
+
+class InvitationAdminForm(forms.ModelForm):
+    expiration_hours = forms.IntegerField(
+        min_value=1,
+        max_value=168,
+        initial=72,
+        help_text="Hours until expiration"
+    )
+
+    class Meta:
+        model = Invitation
+        fields = ['invitation_type', 'expiration_hours', 'max_uses']
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ('code', 'department', 'invitation_type', 'created_by', 'expires_at', 'is_valid')
-    list_filter = ('department__college', 'department', 'invitation_type')
-    search_fields = ('code',)
-    readonly_fields = ('created_at',)
-    autocomplete_fields = ['department', 'created_by']
+    form = InvitationAdminForm
+    list_display = ('code', 'invitation_type', 'department', 'is_valid')
+    readonly_fields = ('code', 'created_by', 'department')
+    list_filter = ('department__college', 'invitation_type')
+    search_fields = ('code', 'department__name')
 
-    def is_valid(self, obj):
-        now = timezone.now()
-        return obj.expires_at > now and obj.used_count < obj.max_uses
-    is_valid.boolean = True
-    is_valid.short_description = 'Valid'
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.department = request.user.department
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            qs = qs.filter(department=request.user.department)
+        return qs
