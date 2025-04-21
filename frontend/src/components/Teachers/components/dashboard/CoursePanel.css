@@ -1,0 +1,8 @@
+.course-color-dot {
+    background-color: var(--course-color);
+}
+
+/* Set the custom property based on the data-color attribute */
+.course-color-dot[data-color] {
+    --course-color: attr(data-color);
+}

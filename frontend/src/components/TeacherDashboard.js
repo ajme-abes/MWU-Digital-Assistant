@@ -1,30 +1,45 @@
-// frontend/src/components/TeacherDashboard.js
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Container, Typography, Button, Grid } from '@mui/material';
+import api from '../api';
+import ResourceUpload from './ResourceUpload';
 
-export default function TeacherDashboard() {
+function TeacherDashboard() {
   const [courses, setCourses] = useState([]);
-  
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchCourses = async () => {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:8000/api/courses/', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCourses(res.data);
+      try {
+        const response = await api.get('/api/teacher/courses/');
+        setCourses(response.data);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchCourses();
   }, []);
 
   return (
-    <div>
-      <h2>techaer dashboard</h2>
-      {courses.map(course => (
-        <div key={course.id}>
-          <h3>{course.title}</h3>
-          <p>{course.description}</p>
-        </div>
-      ))}
-    </div>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Teacher Dashboard
+      </Typography>
+      
+      <Grid container spacing={3}>
+        {courses.map(course => (
+          <Grid item xs={12} md={6} key={course.id}>
+            <div className="course-card">
+              <Typography variant="h6">{course.title}</Typography>
+              <Typography variant="body2">{course.description}</Typography>
+              <ResourceUpload courseId={course.id} />
+            </div>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 }
+
+export default TeacherDashboard;

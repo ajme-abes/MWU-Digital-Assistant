@@ -2,27 +2,29 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import MuiCard from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import FormLabel from '@mui/material/FormLabel';
-import Stack from '@mui/material/Stack';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import CssBaseline from '@mui/material/CssBaseline';
-import { styled } from '@mui/material/styles';
-import ForgotPassword from './ForgotPassword';
+import {
+   styled,
+   CssBaseline,
+   Typography,
+   TextField,
+   Link,
+   FormControlLabel,
+   FormControl,
+   Stack,
+   FormLabel,
+   Divider,
+   Checkbox,
+   Button,
+  Box,
+  CircularProgress
+  } from '@mui/material';
 import { GoogleIcon } from './CustomIcons';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import AnimatedText from './AnimatedText';
-
+import { jwtDecode } from 'jwt-decode';
+import Api from '../api';
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -66,13 +68,14 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function Login(props) {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [usernameError, setUsernameError] = useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
-  const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
   const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleClickOpen = () => {
      setOpen(true);
@@ -83,15 +86,6 @@ export default function Login(props) {
 
   const validateInputs = () => {
     let isValid = true;
-
-    if (!username.trim()) {
-      setUsernameError(true);
-      setUsernameErrorMessage('Username is required');
-      isValid = false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorMessage('');
-    }
 
     if (!password || password.length < 6) {
       setPasswordError(true);
@@ -105,49 +99,47 @@ export default function Login(props) {
     return isValid;
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!validateInputs()) return;
-
+  // Removed unused fetchStudentResources function
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
     try {
-      const res = await axios.post('http://localhost:8000/api/auth/login/', {
-        username,
-        password
-      });
+      const response = await Api.post('/auth/login/', { email, password });
+      console.log("Login Response:", response.data); // 🐛 DEBUG
+
+      localStorage.setItem('accessToken', response.data.access);
+      localStorage.setItem('refreshToken', response.data.refresh);
       
-      localStorage.setItem('token', res.data.access);
-      
-      // Fetch user details
-      const userRes = await axios.get('http://localhost:8000/api/auth/user/', {
-        headers: { Authorization: `Bearer ${res.data.access}` }
-      });
-      
-      navigate('/dashboard');
-    } catch (err) {
-      const errorMessage = err.response?.data?.detail || 'Login failed!';
-      if (errorMessage.toLowerCase().includes('username')) {
-        setUsernameError(true);
-        setUsernameErrorMessage(errorMessage);
-      } else if (errorMessage.toLowerCase().includes('password')) {
-        setPasswordError(true);
-        setPasswordErrorMessage(errorMessage);
-      } else {
-        alert(errorMessage);
+      const decoded = jwtDecode(response.data.access);
+      console.log("Decoded Token:", jwtDecode(response.data.access));
+
+      // Redirect based on role
+      switch(decoded.role) {
+        case 'STUDENT':
+          navigate(`/student-dashboard?dept=${decoded.department}`);
+          break;
+        case 'TEACHER':
+          navigate(`/teacher-dashboard?dept=${decoded.department}`);
+          break;
+        case 'HOD':
+          navigate(`/hod-dashboard?dept=${decoded.department}`);
+          break;
+        default:
+          navigate('/');
       }
+
+    } 
+    catch (error) {
+      console.error('Login error:', error.response?.data);
+      setError(error.response?.data?.detail || 'Login failed');
+    } finally {
+      setLoading(false);
+
     }
   };
   
-  const LoginPage = () => (
-    <GoogleOAuthProvider clientId="YOUR_CLIENT_ID">
-      <GoogleLogin
-        onSuccess={credentialResponse => {
-          console.log(credentialResponse);
-          // Handle login with your backend
-        }}
-        onError={() => console.log('Login Failed')}
-      />
-    </GoogleOAuthProvider>
-  );
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
@@ -164,76 +156,79 @@ export default function Login(props) {
       >
         Sign in
       </Typography>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        noValidate
-        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2,  }}
-      >
-        <FormControl>
-          <FormLabel htmlFor="username">Username</FormLabel>
-          <TextField
-            error={usernameError}
-            helperText={usernameErrorMessage}
-            id="username"
-            name="username"
-            placeholder="Enter your username"
-            //autoComplete="username"
-            autoFocus
-            required
-            fullWidth
-            variant="outlined"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            color={usernameError ? 'error' : 'primary'}
-          />
-        </FormControl>
-        <FormControl>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <FormLabel htmlFor="password">Password</FormLabel>
-            <Link
-              component="button"
-              type="button"
-              onClick={handleClickOpen}
-              variant="body2"
-              sx={{ alignSelf: 'baseline' }}
-            >
-              Forgot your password?
-            </Link>
-          </Box>
-          <TextField
-            error={passwordError}
-            helperText={passwordErrorMessage}
-            name="password"
-            placeholder="••••••"
-            type="password"
-            id="password"
-            //autoComplete="current-password"
-            required
-            fullWidth
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            color={passwordError ? 'error' : 'primary'}
-          />
-        </FormControl>
-        <FormControlLabel
-          control={<Checkbox value="remember" color="primary" />}
-          label="Remember me"
+      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormLabel htmlFor="email">Email</FormLabel>
+        <TextField
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="student@university.edu"
+          required
+          fullWidth
         />
-        <ForgotPassword open={open} handleClose={handleClose} />
-        <Button type="submit" fullWidth variant="contained">
-          Sign in
-        </Button>
-        <Typography sx={{ textAlign: 'center' }}>
-          Don&apos;t have an account?{' '}
-          <span>
-          <Link href="/signup" variant="body2">
-            Sign up
-          </Link>
-          </span>
+      </FormControl>
+
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormLabel htmlFor="password">Password</FormLabel>
+        <TextField
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••"
+          required
+          fullWidth
+          error={passwordError}
+        />
+        {passwordError && (
+          <Typography color="error" variant="caption">
+            {passwordErrorMessage}
+          </Typography>
+        )}
+      </FormControl>
+
+      <FormControlLabel
+        control={
+          <Checkbox 
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            color="primary"
+          />
+        }
+        label="Remember me"
+        sx={{ mb: 2 }}
+      />
+
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
         </Typography>
-      </Box>
+      )}
+
+{error && (
+        <Typography color="error" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+      
+      <Button
+        type="submit"
+        fullWidth
+        variant="contained"
+        sx={{ mt: 3, mb: 2 }}
+        disabled={loading}
+      >
+        {loading ? <CircularProgress size={24} /> : 'Sign In'}
+      </Button>
+      <Typography sx={{ textAlign: 'center' }}>
+        Don't have an account?{' '}
+        <Link href="/signup" underline="hover">
+          Sign up here
+        </Link>
+      </Typography>
+    </Box>
       <Divider>or</Divider>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Button
@@ -244,14 +239,7 @@ export default function Login(props) {
         >
           Sign in with Google
         </Button>
-        {/* <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert('Sign in with Facebook')}
-          startIcon={<FacebookIcon />}
-        >
-          Sign in with Facebook
-        </Button> */}
+      
       </Box>
     </Card>
     </SignInContainer>

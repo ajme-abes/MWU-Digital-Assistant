@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { GoogleLogin } from '@react-oauth/google';
-import FacebookLogin from 'react-facebook-login';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
-import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import MuiCard from '@mui/material/Card';
+import { Card as MuiCard } from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControl,
+  FormLabel,
+  TextField,
+  Typography,
+  MenuItem,
+  Select,
+  FormHelperText,
+  Stack,
+  Link,
+  FormControlLabel,
+  CssBaseline
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
@@ -71,7 +76,13 @@ export default function SignUp(props) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const [nameErrorMessage, setNameErrorMessage] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [role, setRole] = useState('');
+  
+  const selectedRole = watch('role');
 
   const validateInputs = () => {
     const email = document.getElementById('email');
@@ -125,7 +136,7 @@ export default function SignUp(props) {
   };
 
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({
+  const [formErrors, setFormErrors] = useState({
     name: '',
     email: '',
     password: ''
@@ -144,31 +155,48 @@ export default function SignUp(props) {
     }
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    
+  const onSubmit = async (data) => {
     try {
-      const res = await axios.post('http://localhost:8000/api/auth/signup/', {
-        username: formData.get('username'),
-        email: formData.get('email'),
-        password: formData.get('password'),
-        name: formData.get('name'),
-        role: 'student' // Default role
-      });
-
-      localStorage.setItem('token', res.data.access);
-      navigate('/dashboard');
+      const payload = {
+        email: data.email,
+        password: data.password,
+        ...(data.role === 'STUDENT' && { code: data.invitation })  // 🔁 change `invitation` to `code`
+      };
+  
+      await axios.post('http://localhost:8000/api/auth/signup/student/', payload);
+      setSuccess(true);
+      setError('');
     } catch (err) {
-      if (err.response?.data) {
-        setErrors({
-          name: err.response.data.name?.[0] || '',
-          email: err.response.data.email?.[0] || '',
-          password: err.response.data.password?.[0] || ''
-        });
-      }
+      setError(err.response?.data?.detail || 'Registration failed');
     }
   };
+  
+
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   const formData = new FormData(event.currentTarget);
+    
+  //   try {
+  //     const res = await axios.post('http://localhost:8000/api/auth/signup/', {
+  //       username: formData.get('username'),
+  //       email: formData.get('email'),
+  //       password: formData.get('password'),
+  //       name: formData.get('name'),
+  //       role: 'student' // Default role
+  //     });
+
+  //     localStorage.setItem('token', res.data.access);
+  //     navigate('/dashboard');
+  //   } catch (err) {
+  //     if (err.response?.data) {
+  //       setErrors({
+  //         name: err.response.data.name?.[0] || '',
+  //         email: err.response.data.email?.[0] || '',
+  //         password: err.response.data.password?.[0] || ''
+  //       });
+  //     }
+  //   }
+  // };
 
   return (
     <AppTheme {...props}>
@@ -186,69 +214,113 @@ export default function SignUp(props) {
           >
             Sign up
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-          >
-            <FormControl>
-              <FormLabel htmlFor="name">user Name</FormLabel>
-              <TextField
-                //autoComplete="name"
-                id="username"
-                name="username"              
-                required
-                fullWidth
-                placeholder="your name"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <TextField
-                required
-                fullWidth
-                id="email"
-                placeholder="your@email.com"
-                name="email"
-                //autoComplete="email"
-                variant="outlined"
-                error={emailError}
-                helperText={emailErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <TextField
-                required
-                fullWidth
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControlLabel
-              control={<Checkbox value="allowExtraEmails" color="primary" />}
-              label="I want to receive updates via email."
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              //onClick={validateInputs}
-            >
-              Sign up
-            </Button>
-          </Box>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormLabel htmlFor="role">Account Type</FormLabel>
+        <Select
+          {...register('role', { required: 'Role is required' })}
+          id="role"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          variant="outlined"
+          error={!!formErrors.role}
+        >
+          <MenuItem value=""><em>Select Role</em></MenuItem>
+          <MenuItem value="STUDENT">Student</MenuItem>
+          <MenuItem value="TEACHER">Teacher</MenuItem>
+        </Select>
+        {formErrors.role && (
+          <FormHelperText error>{formErrors.role.message}</FormHelperText>
+        )}
+      </FormControl>
+
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormLabel htmlFor="email">Email</FormLabel>
+        <TextField
+          {...register('email', { 
+            required: 'Email is required',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address'
+            }
+          })}
+          id="email"
+          placeholder="your@email.com"
+          variant="outlined"
+          error={!!errors.email}
+          helperText={errors.email?.message}
+        />
+      </FormControl>
+
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <FormLabel htmlFor="password">Password</FormLabel>
+        <TextField
+          {...register('password', { 
+            required: 'Password is required',
+            minLength: {
+              value: 8,
+              message: 'Password must be at least 8 characters'
+            }
+          })}
+          type="password"
+          id="password"
+          placeholder="••••••"
+          variant="outlined"
+          error={!!errors.password}
+          helperText={errors.password?.message}
+        />
+      </FormControl>
+
+      {role === 'STUDENT' && (
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormLabel htmlFor="invitation">Invitation Code</FormLabel>
+          <TextField
+            {...register('invitation', { 
+              required: 'Invitation code is required for students'
+            })}
+            id="invitation"
+            placeholder="Enter department invitation code"
+            variant="outlined"
+            error={!!errors.invitation}
+            helperText={errors.invitation?.message}
+          />
+        </FormControl>
+      )}
+
+      <FormControlLabel
+        control={<Checkbox {...register('updates')} color="primary" />}
+        label="I want to receive updates via email."
+        sx={{ mb: 2 }}
+      />
+
+      <Button
+        type="submit"
+        fullWidth
+        variant="contained"
+        size="large"
+        sx={{ mb: 2 }}
+      >
+        Sign up
+      </Button>
+
+      <Divider sx={{ my: 3 }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          or continue with
+        </Typography>
+      </Divider>
+
+      {error && (
+        <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+
+      {success && (
+        <Typography color="success.main" variant="body2" sx={{ mt: 2 }}>
+          Registration successful! Please check your email to verify your account.
+        </Typography>
+      )}
+    </Box>
           <Divider>
             <Typography sx={{ color: 'text.secondary' }}>or</Typography>
           </Divider>
