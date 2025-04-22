@@ -6,15 +6,12 @@ import {
   CssBaseline,
   Container,
   CircularProgress,
-  Box,
-  Typography
 } from '@mui/material';
 
 // Components
 import Navigation from './components/Navigation/StudentNav';
 import Signup from './components/Signup';
 import SignInSide from './SignInSide';
-import TeacherDashboard from './components/TeacherDashboard';
 import StudentDashboard from './components/StudentDashboard';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import PrivateRoute from './components/PrivateRoute';
@@ -37,6 +34,25 @@ import { SidebarProvider } from "./components/Teachers/context/SidebarContext";
 import { MainLayout } from "./components/Teachers/components/layout/MainLayout";
 import { StrictMode } from "react";
 
+//hod
+//import { Toaster } from "./components/HOD/components/ui/toaster";
+//import { Toaster as Sonner } from "./components/HOD/components/ui/sonner";
+//import { TooltipProvider } from "./components/HOD/components/ui/tooltip";
+//import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+//import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProviderHOD } from "./components/HOD/components/theme-providerHOD";
+import { DashboardLayout } from "./components/HOD/components/layout/DashboardLayout";
+
+import DashboardHod from "./components/HOD/pages/DashboardHod";
+import CoursesHod from "./components/HOD/pages/CoursesHod";
+import ResourcesHod from "./components/HOD/pages/ResourcesHod";
+import Teachers from "./components/HOD/pages/Teachers";
+import EnrollmentHod from "./components/HOD/pages/EnrollmentHod";
+import InvitationCodes from "./components/HOD/pages/InvitationCodes";
+import AnalyticsHod from "./components/HOD/pages/AnalyticsHod";
+import Settings from "./components/HOD/pages/Settings";
+import Logout from "./components/HOD/pages/Logout";
+//import NotFound from "./components/HOD/components/pages/NotFound";
 // Create a client
 const queryClient = new QueryClient();
 
@@ -65,12 +81,6 @@ function App() {
     checkAuth();
   }, []);
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem('token');
-  //   setUser(null);
-  //   return <Navigate to="/login" />;
-  // };
-
   if (loading) {
     return (
       <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -84,6 +94,8 @@ function App() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
+        <ThemeProviderHOD>
+
           <SidebarProvider>
             <TooltipProvider>
               <Toaster />
@@ -147,24 +159,30 @@ function App() {
             } />
 
             {/* HOD Routes */}
-            <Route path="/department" element={
+            <Routes path="/department" element={
               <PrivateRoute roles={['HOD']}>
                 <HODDashboard />
               </PrivateRoute>
               }>
-              {/* <Route index element={<DepartmentOverview />} />
-              <Route path="courses" element={<DepartmentCourses />} />
-              <Route path="faculty" element={<FacultyManagement />} />
-              <Route path="approvals" element={<ResourceApprovals />} />
-              <Route path="analytics" element={<DepartmentAnalytics />} /> */}
-            </Route>
+             <Route path="/" element={<DashboardLayout><DashboardHod /></DashboardLayout>} />
+            <Route path="/courses" element={<DashboardLayout><CoursesHod /></DashboardLayout>} />
+            <Route path="/resources" element={<DashboardLayout><ResourcesHod /></DashboardLayout>} />
+            <Route path="/teachers" element={<DashboardLayout><Teachers /></DashboardLayout>} />
+            <Route path="/enrollment" element={<DashboardLayout><EnrollmentHod /></DashboardLayout>} />
+            <Route path="/invitations" element={<DashboardLayout><InvitationCodes /></DashboardLayout>} />
+            <Route path="/analytics" element={<DashboardLayout><AnalyticsHod /></DashboardLayout>} />
+            <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="*" element={<NotFound />} />
+            </Routes>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Container>
-      </BrowserRouter>
-      </TooltipProvider>
+             </Container>
+            </BrowserRouter>
+           </TooltipProvider>
           </SidebarProvider>
+          </ThemeProviderHOD>
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>
