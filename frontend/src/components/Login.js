@@ -24,7 +24,7 @@ import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import AnimatedText from './AnimatedText';
 import { jwtDecode } from 'jwt-decode';
-import Api from '../api';
+import api from './api';
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -67,27 +67,29 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function Login(props) {
+  const { setUser } = props;
   const navigate = useNavigate();
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordError, setPasswordError] = useState(false);
-  const [open, setOpen] = useState(false);
+  //const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleClickOpen = () => {
-     setOpen(true);
-  }
-  const handleClose = () => {
-     setOpen(false);
-  }
+
 
   const validateInputs = () => {
     let isValid = true;
+    setError('');
 
-    if (!password || password.length < 6) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address');
+      isValid = false;
+    }
+
+    if (password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage('Password must be at least 6 characters');
       isValid = false;
@@ -98,45 +100,49 @@ export default function Login(props) {
 
     return isValid;
   };
-
   // Removed unused fetchStudentResources function
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    if (!validateInputs()) return;
     
+    setLoading(true);
     try {
-      const response = await Api.post('/auth/login/', { email, password });
-      console.log("Login Response:", response.data); // 🐛 DEBUG
+      const response = await api.post('/auth/login/', { email, password });
+      const { access, refresh } = response.data;
+      console.log('Login Response:', response.data); // 🟢 Check token presence
 
-      localStorage.setItem('accessToken', response.data.access);
-      localStorage.setItem('refreshToken', response.data.refresh);
-      
+
+      // Store tokens based on rememberMe choice
+      const storage = rememberMe ? localStorage : sessionStorage;
+      storage.setItem('accessToken', response.data.access);
+      storage.setItem('refreshToken', response.data.refresh);
+
+      console.log('Stored Access Token:', storage.getItem('accessToken')); // 🟢 Verify storage
+      console.log('Stored Refresh Token:', storage.getItem('refreshToken'));
+
+      // Update application state
       const decoded = jwtDecode(response.data.access);
-      console.log("Decoded Token:", jwtDecode(response.data.access));
+      setUser({
+        email: decoded.email,
+        role: decoded.role,
+        department: decoded.department,
+        exp: decoded.exp
+      });
 
       // Redirect based on role
-      switch(decoded.role) {
-        case 'STUDENT':
-          navigate(`/student-dashboard?dept=${decoded.department}`);
-          break;
-        case 'TEACHER':
-          navigate(`/teacher-dashboard?dept=${decoded.department}`);
-          break;
-        case 'HOD':
-          navigate(`/hod-dashboard?dept=${decoded.department}`);
-          break;
-        default:
-          navigate('/');
-      }
+      const basePath = {
+        STUDENT: '/student',
+        TEACHER: '/teacher',
+        HOD: '/hod'
+      }[decoded.role] || '/';
 
-    } 
-    catch (error) {
-      console.error('Login error:', error.response?.data);
-      setError(error.response?.data?.detail || 'Login failed');
+      navigate(basePath);
+
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.response?.data?.detail || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
-
     }
   };
   
@@ -181,12 +187,13 @@ export default function Login(props) {
           required
           fullWidth
           error={passwordError}
+          helperText={passwordErrorMessage}
         />
-        {passwordError && (
+        {/* {passwordError && (
           <Typography color="error" variant="caption">
             {passwordErrorMessage}
           </Typography>
-        )}
+        )} */}
       </FormControl>
 
       <FormControlLabel
@@ -207,11 +214,11 @@ export default function Login(props) {
         </Typography>
       )}
 
-{error && (
+      {/* {error && (
         <Typography color="error" sx={{ mt: 2 }}>
           {error}
         </Typography>
-      )}
+      )} */}
       
       <Button
         type="submit"

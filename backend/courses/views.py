@@ -8,6 +8,8 @@ from rest_framework.views import APIView
 from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 from django.db import models, transaction
+from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 from .models import Course, Resource, Enrollment, ResourceDownload, Assignment
 from .serializers import (
     CourseSerializer, 
@@ -69,6 +71,11 @@ class ResourceUploadAPI(APIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
+    # def post(self, request, course_id):
+    #     course = get_object_or_404(Course, id=course_id)
+    #     if course.department != request.user.department:
+    #         raise PermissionDenied("Cross-department upload prohibited")
 
     def _get_initial_status(self, user, course):
         """Determine initial approval status"""
@@ -102,10 +109,12 @@ class CourseListCreateAPI(generics.ListCreateAPIView):
         user = self.request.user
         return Course.objects.filter(
             department=user.department
-        ).select_related('teacher', 'department')
+        ).select_related('department')
     
     def perform_create(self, serializer):
-        serializer.save(department=self.request.user.department)
+        if serializer.validated_data.get('department') != self.request.user.department:
+            raise PermissionDenied("Cannot create courses in other departments")
+        serializer.save()
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

@@ -132,7 +132,7 @@ export function Navbar() {
               />
             </svg>
           </div>
-          CampusTeach
+          MWU Teaching Platform
         </Link>
       </div>
 

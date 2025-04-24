@@ -1,39 +1,37 @@
-// frontend/src/components/PrivateRoute.js
-import { useEffect } from 'react';
+// PrivateRoute.js
+import React, { useEffect } from 'react';  // Import useEffect from React
 import { Navigate } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
-const PrivateRoute = ({ roles, children }) => {
-  const token = localStorage.getItem('accessToken');
-  
+function PrivateRoute({ roles, children }) {  // Changed to function declaration
+  const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+
+  console.log("Decoded token", jwtDecode(token));
+
   useEffect(() => {
-    if (!token) {
-      console.log('No token found, redirecting to login');
-    }
-  }, [token]);
+    console.log('PrivateRoute Check:', { roles, hasToken: !!token }); // Debug log
+  }, [roles, token]);
 
   try {
-    if (!token) throw new Error('No token');
+    if (!token) {
+      return <Navigate to="/login" />;
+    }
     
     const decoded = jwtDecode(token);
-    console.log('Decoded token:', decoded);
+    console.log('PrivateRoute Token:', decoded); // Debug log
 
     if (!roles.includes(decoded.role)) {
-      console.log('Role mismatch, redirecting');
-      return <Navigate to="/unauthorized" />;
-    }
-
-    if (!decoded.department) {
-      console.log('No department assigned');
-      return <Navigate to="/complete-profile" />;
+      console.log('Role Mismatch:', { required: roles, found: decoded.role }); // Debug log
+      return <Navigate to="/" />;
     }
 
     return children;
     
   } catch (error) {
-    console.error('Auth error:', error);
+    console.error('PrivateRoute Error:', error);
+    localStorage.removeItem('accessToken');
     return <Navigate to="/login" />;
   }
-};
+}
 
-export default PrivateRoute;
+export default PrivateRoute;  // Export the component

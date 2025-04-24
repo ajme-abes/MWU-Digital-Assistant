@@ -59,4 +59,3 @@ ForgotPassword.propTypes = {
   open: PropTypes.bool.isRequired,
 };
 
-//export default ForgotPassword;

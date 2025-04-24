@@ -99,9 +99,8 @@ SITE_ID = 1
 
 # Authentication Settings
 SOCIALACCOUNT_ENABLED = False  # Disable social accounts completely
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 
 REST_AUTH = {
     'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
@@ -122,6 +121,7 @@ CKEDITOR_5_CONFIGS = {
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     ]
+CORS_ALLOW_CREDENTIALS = True
 
 # JWT Authentication
 REST_FRAMEWORK = {
@@ -173,7 +173,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'uni_store',
+        'NAME': 'store',
         'USER': 'admin',
         'PASSWORD': '934608@maamiT',
         'HOST': 'localhost',  # or your database host

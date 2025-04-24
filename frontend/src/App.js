@@ -1,5 +1,5 @@
 // frontend/src/App.js
-import { useEffect, useState } from 'react';
+import { useEffect, useState, StrictMode } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -7,20 +7,20 @@ import {
   Container,
   CircularProgress,
 } from '@mui/material';
-
-// Components
 import Navigation from './components/Navigation/StudentNav';
 import Signup from './components/Signup';
 import SignInSide from './SignInSide';
-import StudentDashboard from './components/StudentDashboard';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import PrivateRoute from './components/PrivateRoute';
-import HODDashboard from './components/HODDashboard';
-//teachers path
+import NotFound from "./components/Teachers/pages/NotFound";
 import { Toaster } from "./components/Teachers/components/ui/toaster";
 import { Toaster as Sonner } from "./components/Teachers/components/ui/sonner";
 import { TooltipProvider } from "./components/Teachers/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Login from './components/Login';
+import { jwtDecode } from 'jwt-decode';
+
+// Teachers
 import Dashboard from "./components/Teachers/pages/Dashboard";
 import Courses from "./components/Teachers/pages/Courses";
 import Resources from "./components/Teachers/pages/Resources";
@@ -28,21 +28,13 @@ import Assignments from "./components/Teachers/pages/Assignments";
 import Grading from "./components/Teachers/pages/Grading";
 import Analytics from "./components/Teachers/pages/Analytics";
 import Profile from "./components/Teachers/pages/Profile";
-import NotFound from "./components/Teachers/pages/NotFound";
 import { ThemeProvider } from "./components/Teachers/context/ThemeContext";
 import { SidebarProvider } from "./components/Teachers/context/SidebarContext";
 import { MainLayout } from "./components/Teachers/components/layout/MainLayout";
-import { StrictMode } from "react";
 
-//hod
-//import { Toaster } from "./components/HOD/components/ui/toaster";
-//import { Toaster as Sonner } from "./components/HOD/components/ui/sonner";
-//import { TooltipProvider } from "./components/HOD/components/ui/tooltip";
-//import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-//import { BrowserRouter, Routes, Route } from "react-router-dom";
+// HOD
 import { ThemeProviderHOD } from "./components/HOD/components/theme-providerHOD";
 import { DashboardLayout } from "./components/HOD/components/layout/DashboardLayout";
-
 import DashboardHod from "./components/HOD/pages/DashboardHod";
 import CoursesHod from "./components/HOD/pages/CoursesHod";
 import ResourcesHod from "./components/HOD/pages/ResourcesHod";
@@ -52,33 +44,44 @@ import InvitationCodes from "./components/HOD/pages/InvitationCodes";
 import AnalyticsHod from "./components/HOD/pages/AnalyticsHod";
 import Settings from "./components/HOD/pages/Settings";
 import Logout from "./components/HOD/pages/Logout";
-//import NotFound from "./components/HOD/components/pages/NotFound";
-// Create a client
+
+// Students
+import DashboardStudent from "./components/Student/pages/DashboardStudent";
+import CoursesStudent from "./components/Student/pages/CoursesStudent";
+import AssignmentsStudent from "./components/Student/pages/AssignmentsStudent";
+import GradesStudent from "./components/Student/pages/GradesStudent";
+import ProfileSettings from "./components/Student/pages/ProfileSettings";
+import AIAssistant from "./components/Student/pages/AIAssistant";
+import StudyMaterials from "./components/Student/pages/StudyMaterials";
+import Layout from "./components/Student/components/layout/Layout";
+
 const queryClient = new QueryClient();
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  //const location = useLocation();
 
-
-  // Check authentication status on mount
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const res = await axios.get('http://localhost:8000/api/auth/user/', {
-            headers: { Authorization: `Bearer ${token}` }
+    const verifyAuth = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          const decoded = jwtDecode(token);
+          setUser({
+            email: decoded.email,
+            role: decoded.role,
+            department: decoded.department,
+            exp: decoded.exp
           });
-          setUser(res.data);
-        } catch (err) {
-          localStorage.removeItem('token');
         }
+      } catch (error) {
+        console.error('Auth Check Failed:', error);
+        localStorage.removeItem('accessToken');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    checkAuth();
+    verifyAuth();
   }, []);
 
   if (loading) {
@@ -91,101 +94,74 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-        <ThemeProviderHOD>
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <ThemeProviderHOD>
+              <SidebarProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <CssBaseline />
+                    <Routes>
 
-          <SidebarProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-               <BrowserRouter>
-                <CssBaseline />
-                {user && <Navigation user={user} setUser={setUser} />}
-        
-        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-          <Routes>
-            <Route path="/" element={
-              !user ? (
-                <Navigate to="/login" />
-              ) : user.role === 'STUDENT' ? (
-                <Navigate to="/dashboard" />
-              ) : user.role === 'TEACHER' ? (
-                <Navigate to="/courses" />
-              ) : user.role === 'HOD' ? (
-                <Navigate to="/department" />
-              ) : (
-                <Navigate to="/login" />
-              )
-            } />
+                      {/* Auth Routes */}
+                      <Route path="/login" element={!user ? <Login setUser={setUser} /> : <Navigate to="/" />} />
+                      <Route path="/signup" element={!user ? <Signup setUser={setUser} /> : <Navigate to="/" />} />
 
-            {/* Auth Routes */}
-            <Route path="/login" element={
-              !user ? <SignInSide setUser={setUser} /> : <Navigate to="/" />
-            } />
-            <Route path="/signup" element={
-              !user ? <Signup setUser={setUser} /> : <Navigate to="/" />
-            } />
+                      {/* HOD Routes */}
+                      <Route path="/hod" element={
+                        <PrivateRoute roles={['HOD']}>
+                          <DashboardLayout><DashboardHod /></DashboardLayout>
+                        </PrivateRoute>
+                      } />
+                      <Route path="/hod/courses" element={<PrivateRoute roles={['HOD']}><DashboardLayout><CoursesHod /></DashboardLayout></PrivateRoute>} />
+                      <Route path="/hod/resources" element={<PrivateRoute roles={['HOD']}><DashboardLayout><ResourcesHod /></DashboardLayout></PrivateRoute>} />
+                      <Route path="/hod/teachers" element={<PrivateRoute roles={['HOD']}><DashboardLayout><Teachers /></DashboardLayout></PrivateRoute>} />
+                      <Route path="/hod/enrollment" element={<PrivateRoute roles={['HOD']}><DashboardLayout><EnrollmentHod /></DashboardLayout></PrivateRoute>} />
+                      <Route path="/hod/invitations" element={<PrivateRoute roles={['HOD']}><DashboardLayout><InvitationCodes /></DashboardLayout></PrivateRoute>} />
+                      <Route path="/hod/analytics" element={<PrivateRoute roles={['HOD']}><DashboardLayout><AnalyticsHod /></DashboardLayout></PrivateRoute>} />
+                      <Route path="/hod/settings" element={<PrivateRoute roles={['HOD']}><DashboardLayout><Settings /></DashboardLayout></PrivateRoute>} />
+                      <Route path="/hod/logout" element={<PrivateRoute roles={['HOD']}><Logout /></PrivateRoute>} />
 
-            {/* Student Routes */}
-            <Route path="/dashboard" element={
-              <PrivateRoute roles={['STUDENT']}>
-                <StudentDashboard />
-              </PrivateRoute>
-              }>
-              {/* <Route index element={<CourseOverview />} />
-              <Route path="courses" element={<EnrolledCourses />} />
-              <Route path="assignments" element={<StudentAssignments />} />
-              <Route path="grades" element={<StudentGrades />} /> */}
-            </Route>
+                      {/* Teacher Routes */}
+                      <Route path="/teacher" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Dashboard /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/courses" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Courses /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/resources" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Resources /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/assignments" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Assignments /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/grading" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Grading /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/analytics" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Analytics /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/profile" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Profile /></MainLayout></PrivateRoute>} />
 
-            {/* Teacher Routes */}
-            <Route path="/courses/*" element={
-              <PrivateRoute roles={['TEACHER']}>
-                <MainLayout>
-                  <Routes>
-                    <Route index element={<Dashboard />} />
-                    <Route path="courses" element={<Courses />} />
-                    <Route path="resources" element={<Resources />} />
-                    <Route path="assignments" element={<Assignments />} />
-                    <Route path="grading" element={<Grading />} />
-                    <Route path="analytics" element={<Analytics />} />
-                    <Route path="profile" element={<Profile />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </MainLayout>
-              </PrivateRoute>
-            } />
+                      {/* Student Routes */}
+                      <Route path="/student" element={<PrivateRoute roles={['STUDENT']}><Layout><DashboardStudent /></Layout></PrivateRoute>} />
+                      <Route path="/student/courses" element={<PrivateRoute roles={['STUDENT']}><Layout><CoursesStudent /></Layout></PrivateRoute>} />
+                      <Route path="/student/assignments" element={<PrivateRoute roles={['STUDENT']}><Layout><AssignmentsStudent /></Layout></PrivateRoute>} />
+                      <Route path="/student/grades" element={<PrivateRoute roles={['STUDENT']}><Layout><GradesStudent /></Layout></PrivateRoute>} />
+                      <Route path="/student/profile" element={<PrivateRoute roles={['STUDENT']}><Layout><ProfileSettings /></Layout></PrivateRoute>} />
+                      <Route path="/student/ai" element={<PrivateRoute roles={['STUDENT']}><Layout><AIAssistant /></Layout></PrivateRoute>} />
+                      <Route path="/student/materials" element={<PrivateRoute roles={['STUDENT']}><Layout><StudyMaterials /></Layout></PrivateRoute>} />
 
-            {/* HOD Routes */}
-            <Routes path="/department" element={
-              <PrivateRoute roles={['HOD']}>
-                <HODDashboard />
-              </PrivateRoute>
-              }>
-             <Route path="/" element={<DashboardLayout><DashboardHod /></DashboardLayout>} />
-            <Route path="/courses" element={<DashboardLayout><CoursesHod /></DashboardLayout>} />
-            <Route path="/resources" element={<DashboardLayout><ResourcesHod /></DashboardLayout>} />
-            <Route path="/teachers" element={<DashboardLayout><Teachers /></DashboardLayout>} />
-            <Route path="/enrollment" element={<DashboardLayout><EnrollmentHod /></DashboardLayout>} />
-            <Route path="/invitations" element={<DashboardLayout><InvitationCodes /></DashboardLayout>} />
-            <Route path="/analytics" element={<DashboardLayout><AnalyticsHod /></DashboardLayout>} />
-            <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="*" element={<NotFound />} />
-            </Routes>
+                      {/* Root redirect based on role */}
+                      <Route path="/" element={
+                        !user ? <Navigate to="/login" /> :
+                          user.role === 'HOD' ? <Navigate to="/hod" /> :
+                          user.role === 'TEACHER' ? <Navigate to="/teacher" /> :
+                          <Navigate to="/student" />
+                      } />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-             </Container>
-            </BrowserRouter>
-           </TooltipProvider>
-          </SidebarProvider>
-          </ThemeProviderHOD>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </StrictMode>
+                      {/* 404 Not Found */}
+                      <Route path="*" element={<NotFound />} />
+
+                    </Routes>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </SidebarProvider>
+            </ThemeProviderHOD>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </StrictMode>
     </GoogleOAuthProvider>
   );
 }

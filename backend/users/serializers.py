@@ -79,8 +79,22 @@ class TeacherRegistrationSerializer(BaseRegistrationSerializer):
         invitation.save()
         return user
 class LoginSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # ✅ Embed custom fields in the token
+        token['role'] = user.role
+        token['email'] = user.email
+        token['department'] = user.department.code if user.department else None
+        token['college'] = user.department.college.code if user.department and user.department.college else None
+
+        return token
+
     def validate(self, attrs):
         data = super().validate(attrs)
+
+        # Optional: Also return user info in the response body
         data.update({
             'id': self.user.id,
             'email': self.user.email,
@@ -88,82 +102,6 @@ class LoginSerializer(TokenObtainPairSerializer):
             'department': self.user.department.code if self.user.department else None,
             'college': self.user.department.college.code if self.user.department else None
         })
+
         return data
-# class CustomRegisterSerializer(serializers.ModelSerializer):
-#     invitation_code = serializers.CharField(write_only=True, required=False)
-#     role = serializers.ChoiceField(
-#         choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher')],
-#         write_only=True
-#     )
 
-#     class Meta:
-#         model = User
-#         fields = ['email', 'password', 'role', 'invitation_code']
-#         extra_kwargs = {'password': {'write_only': True}}
-
-#     def validate(self, attrs):
-#         if attrs['password1'] != attrs['password2']:
-#               raise serializers.ValidationError({"password": "Passwords don't match"})
-#         return attrs
-
-#     def create(self, validated_data):
-#         user = User.objects.create_user(
-#             email=validated_data['email'],
-#             password=validated_data['password1']
-#         )
-#         return user
-    
-# class SignupSerializer(serializers.ModelSerializer):
-#     invitation_code = serializers.CharField(
-#         write_only=True, 
-#         required=False,
-#         help_text="Required only for student registration"
-#     )
-#     role = serializers.ChoiceField(
-#         choices=[('STUDENT', 'Student'), ('TEACHER', 'Teacher')],
-#         write_only=True
-#     )
-
-#     class Meta:
-#         model = User
-#         fields = ['email', 'password', 'role', 'invitation_code']
-#         extra_kwargs = {'password': {'write_only': True}}
-
-#     def validate(self, attrs):
-#         role = attrs.get('role')
-#         invitation_code = attrs.pop('invitation_code', None)
-
-#         if role == 'STUDENT' and not invitation_code:
-#             raise serializers.ValidationError(
-#                 {"invitation_code": "Invitation code is required for student registration"}
-#             )
-
-#         if role == 'STUDENT':
-#             try:
-#                 invitation = Invitation.objects.get(
-#                     code=invitation_code,
-#                     used_count__lt=models.F('max_uses'),
-#                     expires_at__gt=timezone.now()
-#                 )
-#                 attrs['department'] = invitation.department
-#                 attrs['college'] = invitation.department.college
-#             except Invitation.DoesNotExist:
-#                 raise serializers.ValidationError(
-#                     {"invitation_code": "Invalid or expired invitation code"}
-#                 )
-
-#         return attrs
-
-#     def create(self, validated_data):
-#         role = validated_data.pop('role')
-#         user = User.objects.create_user(**validated_data)
-        
-#         # Assign role
-#         role_obj, _ = Role.objects.get_or_create(
-#             name=role,
-#             department=user.department,
-#             college=user.college
-#         )
-#         user.roles.add(role_obj)
-        
-#         return user

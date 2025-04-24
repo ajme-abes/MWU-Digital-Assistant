@@ -63,7 +63,7 @@ export function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
           />
           <NavItem
-            to="/courses"
+            to="../components/HOD/pages/Courses"
             icon={<BookOpen size={20} />}
             title="Manage Courses"
             collapsed={collapsed}

@@ -1,87 +1,3 @@
-# from django.db import models
-# from django.conf import settings
-# from django.utils import timezone
-# from university.models import Department
-# from django_ckeditor_5.fields import CKEditor5Field
-# import uuid
-
-# class Course(models.Model):
-#     title = models.CharField(max_length=200)
-#     description = models.TextField()
-#     teacher = models.ForeignKey(
-#         settings.AUTH_USER_MODEL, 
-#         on_delete=models.CASCADE,
-#         related_name='taught_courses'
-#     )
-#     department = models.ForeignKey(
-#         Department,
-#         on_delete=models.CASCADE,
-#         related_name='courses'
-#     )
-#     visibility = models.CharField(
-#         max_length=10,
-#         choices=[('public', 'Public'), ('private', 'Private')],
-#         default='public'
-#     )
-#     enrollment_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     class Meta:
-#         ordering = ['-created_at']
-#         unique_together = ('department', 'title')
-
-#     def __str__(self):
-#         return f"{self.department.code} - {self.title}"
-
-#     def save(self, *args, **kwargs):
-#         """Auto-set department from teacher's department if not provided"""
-#         if not self.department_id and self.teacher.department:
-#             self.department = self.teacher.department
-#         super().save(*args, **kwargs)
-
-# class Resource(models.Model):
-#     RESOURCE_TYPES = [
-#         ('pdf', 'PDF'),
-#         ('quiz', 'Quiz'),
-#         ('video', 'Video'),
-#         ('doc', 'Document'),
-#     ]
-    
-#     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-#     title = models.CharField(max_length=200)
-#     file = models.FileField(upload_to='department_resources/%Y/%m/%d/')
-#     resource_type = models.CharField(max_length=10, choices=RESOURCE_TYPES)
-#     description = models.TextField(blank=True)  # Add this line
-#     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-#     uploaded_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"{self.title} ({self.resource_type})"
-
-# # Keep Enrollment and Assignment models as they are
-
-# class Enrollment(models.Model):
-#     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='student_enrollments')
-#     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_enrollments')
-#     enrolled_at = models.DateTimeField(auto_now_add=True)
-
-#     class Meta:
-#         unique_together = ('student', 'course')
-
-# class Assignment(models.Model):
-#     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_assignments')
-#     title = models.CharField(max_length=200)
-#     description = CKEditor5Field('Description', config_name='extends')
-#     deadline = models.DateTimeField(
-#         null=False,  # Make deadline required
-#         help_text="Deadline must be set for all assignments"
-#     )    
-#     questions = models.JSONField(default=list)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return self.title
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -89,8 +5,7 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django_ckeditor_5.fields import CKEditor5Field
 from django.db import models
 from django.conf import settings
-from django.core.validators import FileExtensionValidator, MinValueValidator
-from django.utils import timezone
+from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from django.core.files.storage import FileSystemStorage
 from django.contrib.postgres.fields import ArrayField
 class Course(models.Model):
@@ -183,7 +98,7 @@ class Resource(models.Model):
     approved_at = models.DateTimeField(null=True, blank=True)
     download_count = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    file_size = models.PositiveIntegerField(max_length=100, default="0", null=False, blank=False,editable=False)
+    file_size = models.PositiveIntegerField( validators=[MaxValueValidator(1048576)],default="0", null=False, blank=False,editable=False)
     version = models.PositiveSmallIntegerField(default=1)
     previous_versions = ArrayField(models.UUIDField(), default=list, blank=True)
     description = models.TextField(null=True, blank=True)

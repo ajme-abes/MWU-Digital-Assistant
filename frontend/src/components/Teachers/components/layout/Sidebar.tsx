@@ -19,10 +19,10 @@ import { motion } from "framer-motion";
 
 const navItems = [
   { title: "Dashboard", icon: "layout-dashboard", path: "/" },
-  { title: "My Courses", icon: "book-open", path: "/courses" },
-  { title: "Upload Resources", icon: "upload", path: "/resources" },
-  { title: "Create Assignments", icon: "file-plus", path: "/assignments" },
-  { title: "Grade Submissions", icon: "file-check", path: "/grading" },
+  { title: "My Courses", icon: "book-open", path: "../pages/Courses" },
+  { title: "Upload Resources", icon: "upload", path: "../pages/Resources" },
+  { title: "Create Assignments", icon: "file-plus", path: "../pages/Assignments" },
+  { title: "Grade Submissions", icon: "file-check", path: "/pages/Grading" },
   { title: "Analytics", icon: "chart-bar", path: "/analytics" },
   { title: "Profile", icon: "user-round", path: "/profile" },
 ];
