@@ -21,12 +21,12 @@ import Login from './components/Login';
 import { jwtDecode } from 'jwt-decode';
 
 // Teachers
-import Dashboard from "./components/Teachers/pages/Dashboard";
-import Courses from "./components/Teachers/pages/Courses";
-import Resources from "./components/Teachers/pages/Resources";
-import Assignments from "./components/Teachers/pages/Assignments";
+import TeacherDashboard from "./components/Teachers/pages/TeacherDashboard";
+import TeacherCourses from "./components/Teachers/pages/TecaherCourses";
+import TeacherResources from "./components/Teachers/pages/TeacherResources";
+import TeacherAssignments from "./components/Teachers/pages/TeacherAssignments";
 import Grading from "./components/Teachers/pages/Grading";
-import Analytics from "./components/Teachers/pages/Analytics";
+import TeacherAnalytics from "./components/Teachers/pages/TeacherAnalytics";
 import Profile from "./components/Teachers/pages/Profile";
 import { ThemeProvider } from "./components/Teachers/context/ThemeContext";
 import { SidebarProvider } from "./components/Teachers/context/SidebarContext";
@@ -96,8 +96,6 @@ function App() {
     <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
       <StrictMode>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <ThemeProviderHOD>
               <SidebarProvider>
                 <TooltipProvider>
                   <Toaster />
@@ -107,7 +105,9 @@ function App() {
                     <Routes>
 
                       {/* Auth Routes */}
-                      <Route path="/login" element={!user ? <Login setUser={setUser} /> : <Navigate to="/" />} />
+                      <Route
+                      path="/login"
+                       element={!user ? (<><SignInSide /></>) : (<Navigate to="/" />)}/>
                       <Route path="/signup" element={!user ? <Signup setUser={setUser} /> : <Navigate to="/" />} />
 
                       {/* HOD Routes */}
@@ -124,16 +124,16 @@ function App() {
                       <Route path="/hod/analytics" element={<PrivateRoute roles={['HOD']}><DashboardLayout><AnalyticsHod /></DashboardLayout></PrivateRoute>} />
                       <Route path="/hod/settings" element={<PrivateRoute roles={['HOD']}><DashboardLayout><Settings /></DashboardLayout></PrivateRoute>} />
                       <Route path="/hod/logout" element={<PrivateRoute roles={['HOD']}><Logout /></PrivateRoute>} />
-
-                      {/* Teacher Routes */}
-                      <Route path="/teacher" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Dashboard /></MainLayout></PrivateRoute>} />
-                      <Route path="/teacher/courses" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Courses /></MainLayout></PrivateRoute>} />
-                      <Route path="/teacher/resources" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Resources /></MainLayout></PrivateRoute>} />
-                      <Route path="/teacher/assignments" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Assignments /></MainLayout></PrivateRoute>} />
+                      <ThemeProvider>
+                      {/*Teacher Routes */}
+                      <Route path="/teacher" element={<PrivateRoute roles={['TEACHER']}><MainLayout><TeacherDashboard /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/courses" element={<PrivateRoute roles={['TEACHER']}><MainLayout><TeacherCourses /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/resources" element={<PrivateRoute roles={['TEACHER']}><MainLayout><TeacherResources /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/assignments" element={<PrivateRoute roles={['TEACHER']}><MainLayout><TeacherAssignments /></MainLayout></PrivateRoute>} />
                       <Route path="/teacher/grading" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Grading /></MainLayout></PrivateRoute>} />
-                      <Route path="/teacher/analytics" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Analytics /></MainLayout></PrivateRoute>} />
+                      <Route path="/teacher/analytics" element={<PrivateRoute roles={['TEACHER']}><MainLayout><TeacherAnalytics /></MainLayout></PrivateRoute>} />
                       <Route path="/teacher/profile" element={<PrivateRoute roles={['TEACHER']}><MainLayout><Profile /></MainLayout></PrivateRoute>} />
-
+                      </ThemeProvider>
                       {/* Student Routes */}
                       <Route path="/student" element={<PrivateRoute roles={['STUDENT']}><Layout><DashboardStudent /></Layout></PrivateRoute>} />
                       <Route path="/student/courses" element={<PrivateRoute roles={['STUDENT']}><Layout><CoursesStudent /></Layout></PrivateRoute>} />
@@ -142,6 +142,8 @@ function App() {
                       <Route path="/student/profile" element={<PrivateRoute roles={['STUDENT']}><Layout><ProfileSettings /></Layout></PrivateRoute>} />
                       <Route path="/student/ai" element={<PrivateRoute roles={['STUDENT']}><Layout><AIAssistant /></Layout></PrivateRoute>} />
                       <Route path="/student/materials" element={<PrivateRoute roles={['STUDENT']}><Layout><StudyMaterials /></Layout></PrivateRoute>} />
+                      <Route path="/student/settings" element={<PrivateRoute roles={['STUDENT']}><Layout><ProfileSettings /></Layout></PrivateRoute>} />
+
 
                       {/* Root redirect based on role */}
                       <Route path="/" element={
@@ -158,8 +160,7 @@ function App() {
                   </BrowserRouter>
                 </TooltipProvider>
               </SidebarProvider>
-            </ThemeProviderHOD>
-          </ThemeProvider>
+          
         </QueryClientProvider>
       </StrictMode>
     </GoogleOAuthProvider>

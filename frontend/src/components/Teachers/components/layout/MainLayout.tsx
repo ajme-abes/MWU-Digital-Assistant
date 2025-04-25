@@ -1,6 +1,6 @@
 
-import { Navbar } from "../../components/layout/Navbar";
-import { Sidebar } from "../../components/layout/Sidebar";
+import { TeacherNavbar } from "./TeacherNavbar";
+import { TeacherSidebar } from "./TeacherSidebar";
 import { useSidebar } from "../../context/SidebarContext";
 import { cn } from "../../lib/utils"
 
@@ -13,7 +13,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+      <TeacherSidebar />
       <div
         className={cn(
           "flex-1 flex flex-col transition-all duration-300 ease-in-out",
@@ -25,7 +25,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           marginLeft: window.innerWidth < 768 ? "0" : undefined
         }}
       >
-        <Navbar />
+        <TeacherNavbar />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children}
         </main>

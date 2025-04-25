@@ -58,7 +58,7 @@ export default function SignInSide(props) {
             }}
           >
             <Content />
-            <Login />
+            <Login setUser={(user) => console.log('User set:', user)}/>
           </Stack>
         </Stack>
       </Stack>

@@ -5,10 +5,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
-  ClipboardCheck,
   FileCheck,
-  GraduationCap,
-  Home,
   KeyRound,
   LayoutDashboard,
   LogOut,
@@ -16,9 +13,9 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import { Separator } from "../../components/ui/separator";
-import { ScrollArea } from "../../components/ui/scroll-area";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
+import { ScrollArea } from "../ui/scroll-area";
 import { cn } from "../../lib/utils";
 import { useState } from "react";
 
@@ -26,7 +23,7 @@ interface SidebarProps {
   className?: string;
 }
 
-export function Sidebar({ className }: SidebarProps) {
+export function HODSidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleSidebar = () => {
@@ -57,58 +54,58 @@ export function Sidebar({ className }: SidebarProps) {
       <ScrollArea className="flex-1">
         <nav className="flex flex-col gap-2 p-2">
           <NavItem
-            to="/"
+            to="/hod"
             icon={<LayoutDashboard size={20} />}
             title="Dashboard"
             collapsed={collapsed}
           />
           <NavItem
-            to="../components/HOD/pages/Courses"
+            to="/hod/Courses"
             icon={<BookOpen size={20} />}
             title="Manage Courses"
             collapsed={collapsed}
           />
           <NavItem
-            to="/resources"
+            to="/hod/resources"
             icon={<FileCheck size={20} />}
             title="Approve Resources"
             collapsed={collapsed}
           />
           <NavItem
-            to="/teachers"
+            to="/hod/teachers"
             icon={<User size={20} />}
             title="View Teachers"
             collapsed={collapsed}
           />
           <NavItem
-            to="/enrollment"
+            to="/hod/enrollment"
             icon={<Users size={20} />}
             title="Enrollment"
             collapsed={collapsed}
           />
           <NavItem
-            to="/invitations"
+            to="/hod/invitations"
             icon={<KeyRound size={20} />}
             title="Invitation Codes"
             collapsed={collapsed}
           />
           <NavItem
-            to="/analytics"
+            to="/hod/analytics"
             icon={<BarChart3 size={20} />}
             title="Analytics"
             collapsed={collapsed}
           />
           <NavItem
-            to="/settings"
+            to="/hod/settings"
             icon={<Settings size={20} />}
             title="Settings"
             collapsed={collapsed}
           />
           <Separator className="my-2" />
           <NavItem
-            to="/logout"
+            to="/hod/logout"
             icon={<LogOut size={20} />}
-            title="Logout"
+            title="/hod/Logout"
             collapsed={collapsed}
             variant="destructive"
           />

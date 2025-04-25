@@ -1,6 +1,6 @@
 
 import { Bell, Moon, Sun, User, University } from "lucide-react";
-import { Button } from "../../components/ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,12 +8,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
-import { useTheme } from "../../components/ThemeProvider";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
-import { Badge } from "../../components/ui/badge";
+} from "../ui/dropdown-menu";
+import { useTheme } from "../ThemeProvider";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
 
-export function Navbar() {
+export function StudentNavbar() {
   const { theme, setTheme } = useTheme();
 
   return (

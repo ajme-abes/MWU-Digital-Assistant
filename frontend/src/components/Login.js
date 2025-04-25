@@ -189,11 +189,7 @@ export default function Login(props) {
           error={passwordError}
           helperText={passwordErrorMessage}
         />
-        {/* {passwordError && (
-          <Typography color="error" variant="caption">
-            {passwordErrorMessage}
-          </Typography>
-        )} */}
+        
       </FormControl>
 
       <FormControlLabel
@@ -214,12 +210,6 @@ export default function Login(props) {
         </Typography>
       )}
 
-      {/* {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
-          {error}
-        </Typography>
-      )} */}
-      
       <Button
         type="submit"
         fullWidth

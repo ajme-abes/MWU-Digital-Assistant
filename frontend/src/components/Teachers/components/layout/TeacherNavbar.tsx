@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, Menu, Sun, Moon } from "lucide-react";
 import { useSidebar } from "../../context/SidebarContext";
 import { useTheme } from "../../context/ThemeContext";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -11,17 +11,17 @@ import {
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from "../../components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../components/ui/popover";
-import { Button } from "../../components/ui/button";
+} from "../ui/popover";
+import { Button } from "../ui/button";
 import { teacherData } from "../../data/mockData";
 import { useToast } from "../../hooks/use-toast";
 
-export function Navbar() {
+export function TeacherNavbar() {
   const { toggleSidebar } = useSidebar();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();

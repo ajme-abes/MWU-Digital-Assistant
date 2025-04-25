@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "../../lib/utils"
 import { useSidebar } from "../../context/SidebarContext";
-import { Button } from "../../components/ui/button";
+import { Button } from "../ui/button";
 import { 
   ChevronLeft,
   LayoutDashboard,
@@ -17,14 +17,14 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-const navItems = [
-  { title: "Dashboard", icon: "layout-dashboard", path: "/" },
-  { title: "My Courses", icon: "book-open", path: "../pages/Courses" },
-  { title: "Upload Resources", icon: "upload", path: "../pages/Resources" },
-  { title: "Create Assignments", icon: "file-plus", path: "../pages/Assignments" },
-  { title: "Grade Submissions", icon: "file-check", path: "/pages/Grading" },
-  { title: "Analytics", icon: "chart-bar", path: "/analytics" },
-  { title: "Profile", icon: "user-round", path: "/profile" },
+const TechNavItems = [
+  { title: "Dashboard", icon: "layout-dashboard", path: "/teacher" },
+  { title: "My Courses", icon: "book-open", path: "/teacher/Courses" },
+  { title: "Upload Resources", icon: "upload", path: "/teacher/Resources" },
+  { title: "Create Assignments", icon: "file-plus", path: "/teacher/Assignments" },
+  { title: "Grade Submissions", icon: "file-check", path: "/teacher/Grading" },
+  { title: "Analytics", icon: "chart-bar", path: "/teacher/analytics" },
+  { title: "Profile", icon: "user-round", path: "/teacher/profile" },
 ];
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -37,7 +37,7 @@ const iconMap: Record<string, React.ReactNode> = {
   'user-round': <UserRound className="w-5 h-5" />,
 };
 
-export function Sidebar() {
+export function TeacherSidebar() {
   const { isCollapsed, toggleSidebar } = useSidebar();
   const location = useLocation();
 
@@ -74,7 +74,7 @@ export function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-2">
-          {navItems.map((item, index) => (
+          {TechNavItems.map((item, index) => (
             <motion.li 
               key={item.title}
               initial={{ opacity: 0, x: -20 }}

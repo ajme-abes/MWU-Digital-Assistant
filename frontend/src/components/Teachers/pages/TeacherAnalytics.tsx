@@ -44,7 +44,7 @@ const studentEngagementData = [
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE"];
 
-export default function Analytics() {
+export default function TeacherAnalytics() {
   const [selectedCourse, setSelectedCourse] = useState("all");
   const [selectedPeriod, setSelectedPeriod] = useState("semester");
 

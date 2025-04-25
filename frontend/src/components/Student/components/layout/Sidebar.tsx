@@ -29,37 +29,37 @@ export function Sidebar({ className }: SidebarProps) {
     {
       title: "Dashboard",
       icon: LayoutDashboard,
-      href: "/",
+      path: "/student",
     },
     {
       title: "My Courses",
       icon: BookOpen,
-      href: "/courses",
+      path: "/student/courses",
     },
     {
       title: "Assignments",
       icon: FileText,
-      href: "/assignments",
+      path: "/student/assignments",
     },
     {
       title: "Grades",
       icon: ChartBar,
-      href: "/grades",
+      path: "/student/grades",
     },
     {
       title: "Study Materials",
       icon: FileSearch,
-      href: "/materials",
+      path: "/student/materials",
     },
     {
       title: "AI Assistant",
       icon: Bot,
-      href: "/assistant",
+      path: "student/ai",
     },
     {
       title: "Profile Settings",
       icon: Settings,
-      href: "/settings",
+      path: "/student/settings",
     },
   ];
 
@@ -95,10 +95,10 @@ export function Sidebar({ className }: SidebarProps) {
           {sidebarItems.map((item) => (
             <Link
               key={item.title}
-              to={item.href}
+              to={item.path}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                location.pathname === item.href && "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
+                location.pathname === item.path && "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
                 collapsed && "justify-center"
               )}
             >

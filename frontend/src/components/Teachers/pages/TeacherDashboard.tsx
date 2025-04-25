@@ -6,7 +6,7 @@ import { CoursesList } from "../components/dashboard/CoursesList";
 import { dashboardStats } from "../data/mockData";
 import { motion } from "framer-motion";
 
-export default function Dashboard() {
+export default function TeacherDashboard() {
   return (
     <div className="container mx-auto max-w-7xl">
       <motion.div 
